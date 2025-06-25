@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="sk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmárska hra</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(to bottom, #dcfce7, #bbf7d0);
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #166534;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .header-stats {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            width: 5rem;
+            height: 0.5rem;
+            background: #e5e7eb;
+            border-radius: 0.25rem;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #10b981;
+            transition: width 0.3s ease;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f3f4f6;
+            border-radius: 0.5rem;
+            padding: 0.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 0.5rem 1rem;
+            background: none;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: white;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .fields-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .field {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .field.ready {
+            background: #dcfce7;
+            border-color: #16a34a;
+        }
+
+        .field-icon {
+            font-size: 2rem;
+            margin: 0.5rem 0;
+        }
+
+        .button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+            margin: 0.25rem 0;
+        }
+
+        .button:hover {
+            background: #1d4ed8;
+        }
+
+        .button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .button.small {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .button.outline {
+            background: white;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .button.outline:hover {
+            background: #f9fafb;
+        }
+
+        .crops-list,
+        .tools-list,
+        .achievements-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+        }
+
+        .item-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .item-description {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-top: 0.25rem;
+        }
+
+        .badge.common {
+            color: #6b7280;
+            border: 1px solid #6b7280;
+        }
+
+        .badge.uncommon {
+            color: #16a34a;
+            border: 1px solid #16a34a;
+        }
+
+        .badge.rare {
+            color: #2563eb;
+            border: 1px solid #2563eb;
+        }
+
+        .badge.epic {
+            color: #9333ea;
+            border: 1px solid #9333ea;
+        }
+
+        .badge.legendary {
+            color: #ca8a04;
+            border: 1px solid #ca8a04;
+        }
+
+        .text-common {
+            color: #6b7280;
+        }
+
+        .text-uncommon {
+            color: #16a34a;
+        }
+
+        .text-rare {
+            color: #2563eb;
+        }
+
+        .text-epic {
+            color: #9333ea;
+        }
+
+        .text-legendary {
+            color: #ca8a04;
+        }
+
+        .achievement.unlocked {
+            background: #dcfce7;
+            border-color: #16a34a;
+        }
+
+        .daily-reward {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-family: monospace;
+            font-size: 0.875rem;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .field-crops {
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .unlock-button {
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .header-stats {
+                gap: 1rem;
+            }
+
+            .fields-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .item {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="card">
+            <div class="card-header">
+                <h1 class="card-title">
+                    🌾 Farmárska hra
+                </h1>
+                <div class="header-stats">
+                    <div class="stat">
+                        <span>🪙</span>
+                        <span id="coins">100</span>
+                    </div>
+                    <div class="stat">
+                        <span>⭐</span>
+                        <span>Level <span id="level">1</span></span>
+                    </div>
+                    <div class="stat">
+                        <span>XP: <span id="xp">0</span>/100</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="xp-progress"></div>
+                        </div>
+                    </div>
+                    <button class="button outline small" onclick="openSaveModal()">
+                        💾 Uložiť/Načítať
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('farm')">Farma</button>
+            <button class="tab" onclick="switchTab('shop')">Obchod</button>
+            <button class="tab" onclick="switchTab('tools')">Nástroje</button>
+            <button class="tab" onclick="switchTab('achievements')">Úspechy</button>
+            <button class="tab" onclick="switchTab('rewards')">Odmeny</button>
+        </div>
+
+        <!-- Farm Tab -->
+        <div id="farm-tab" class="tab-content active">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        ☀️ Polia (<span id="unlocked-fields">4</span>/20)
+                    </h2>
+                </div>
+                <div class="card-content">
+                    <div class="fields-grid" id="fields-grid">
+                        <!-- Fields will be generated here -->
+                    </div>
+                    <button class="button unlock-button" id="unlock-field-btn" onclick="unlockField()">
+                        Odomknúť nové pole (600 mincí)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shop Tab -->
+        <div id="shop-tab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        🛒 Semená
+                    </h2>
+                </div>
+                <div class="card-content">
+                    <div class="crops-list" id="crops-list">
+                        <!-- Crops will be generated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tools Tab -->
+        <div id="tools-tab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        🚜 Nástroje a vylepšenia
+                    </h2>
+                </div>
+                <div class="card-content">
+                    <div class="tools-list" id="tools-list">
+                        <!-- Tools will be generated here -->
+                    </div>
+                    <div
+                        style="text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
+                        <div>Celkové zrýchlenie rastu: +<span id="speed-bonus">0</span>%</div>
+                        <div>Vlastníš <span id="owned-tools">0</span>/<span id="total-tools">6</span> nástrojov</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievements Tab -->
+        <div id="achievements-tab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        🏆 Úspechy (<span id="unlocked-achievements">0</span>/<span id="total-achievements">12</span>)
+                    </h2>
+                </div>
+                <div class="card-content">
+                    <div class="achievements-list" id="achievements-list">
+                        <!-- Achievements will be generated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rewards Tab -->
+        <div id="rewards-tab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        🎁 Denné odmeny
+                    </h2>
+                </div>
+                <div class="card-content">
+                    <div class="daily-reward">
+                        <div style="font-size: 1.25rem; margin-bottom: 1rem;">
+                            Denná odmena: <span id="daily-reward-amount">50</span> mincí
+                        </div>
+                        <button class="button" id="daily-reward-btn" onclick="claimDailyReward()">
+                            Vyzdvihnúť dennú odmenu
+                        </button>
+                        <div style="font-size: 0.875rem; color: #6b7280; margin-top: 1rem;">
+                            Denné odmeny sa obnovia každých 24 hodín
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save/Load Modal -->
+    <div id="save-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Uložiť / Načítať hru</h3>
+            </div>
+
+            <div style="margin-bottom: 2rem;">
+                <h4 style="margin-bottom: 1rem;">Uložiť hru</h4>
+                <button class="button" onclick="generateSaveCode()" style="width: 100%; margin-bottom: 1rem;">
+                    💾 Vygenerovať kód na uloženie
+                </button>
+                <textarea id="save-code" class="textarea" readonly
+                    placeholder="Kód na uloženie sa zobrazí tu..."></textarea>
+                <button class="button outline" onclick="copySaveCode()" style="width: 100%; margin-top: 0.5rem;">
+                    📋 Skopírovať kód
+                </button>
+            </div>
+
+            <div style="margin-bottom: 2rem;">
+                <h4 style="margin-bottom: 1rem;">Načítať hru</h4>
+                <textarea id="load-code" class="textarea" placeholder="Vložte kód na načítanie..."></textarea>
+                <button class="button" onclick="loadFromCode()" style="width: 100%; margin-top: 0.5rem;">
+                    📤 Načítať hru
+                </button>
+            </div>
+
+            <button class="button outline" onclick="closeSaveModal()" style="width: 100%;">
+                Zavrieť
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let gameState = {
+            coins: 100,
+            xp: 0,
+            level: 1,
+            plantedCrops: [],
+            unlockedFields: 4,
+            totalHarvests: 0,
+            totalCropsGrown: 0,
+            lastDailyReward: 0,
+            tools: [],
+            achievements: []
+        };
+
+        // Game data
+        const crops = [
+            {
+                id: 'wheat',
+                name: 'Pšenica',
+                icon: '🌾',
+                growTime: 10,
+                sellPrice: 15,
+                seedCost: 5,
+                xpReward: 10,
+                levelRequired: 1,
+                rarity: 'common'
+            },
+            {
+                id: 'carrot',
+                name: 'Mrkva',
+                icon: '🥕',
+                growTime: 20,
+                sellPrice: 25,
+                seedCost: 8,
+                xpReward: 15,
+                levelRequired: 2,
+                rarity: 'common'
+            },
+            {
+                id: 'clover',
+                name: 'Štvorlístok',
+                icon: '🍀',
+                growTime: 30,
+                sellPrice: 40,
+                seedCost: 12,
+                xpReward: 20,
+                levelRequired: 3,
+                rarity: 'uncommon'
+            },
+            {
+                id: 'grape',
+                name: 'Hrozno',
+                icon: '🍇',
+                growTime: 45,
+                sellPrice: 65,
+                seedCost: 20,
+                xpReward: 30,
+                levelRequired: 4,
+                rarity: 'uncommon'
+            },
+            {
+                id: 'leafy_green',
+                name: 'Listová zelenina',
+                icon: '🥬',
+                growTime: 60,
+                sellPrice: 100,
+                seedCost: 35,
+                xpReward: 45,
+                levelRequired: 6,
+                rarity: 'rare'
+            },
+            {
+                id: 'sprout_premium',
+                name: 'Prémiový výhonok',
+                icon: '🌱',
+                growTime: 90,
+                sellPrice: 180,
+                seedCost: 60,
+                xpReward: 75,
+                levelRequired: 8,
+                rarity: 'epic'
+            },
+            {
+                id: 'golden_wheat',
+                name: 'Zlatá pšenica',
+                icon: '✨',
+                growTime: 120,
+                sellPrice: 300,
+                seedCost: 100,
+                xpReward: 120,
+                levelRequired: 10,
+                rarity: 'legendary'
+            },
+            {
+                id: 'crystal_grape',
+                name: 'Kryštálové hrozno',
+                icon: '💎',
+                growTime: 180,
+                sellPrice: 500,
+                seedCost: 180,
+                xpReward: 200,
+                levelRequired: 15,
+                rarity: 'legendary'
+            }
+        ];
+
+        const tools = [
+            {
+                id: 'sprinkler',
+                name: 'Zavlažovač',
+                icon: '💧',
+                cost: 200,
+                speedBonus: 15,
+                description: 'Zrýchli rast o 15%',
+                owned: false,
+                levelRequired: 3
+            },
+            {
+                id: 'fertilizer',
+                name: 'Hnojivo',
+                icon: '🌱',
+                cost: 500,
+                speedBonus: 25,
+                description: 'Zrýchli rast o 25%',
+                owned: false,
+                levelRequired: 5
+            },
+            {
+                id: 'tractor',
+                name: 'Traktor',
+                icon: '🚜',
+                cost: 1000,
+                speedBonus: 40,
+                description: 'Zrýchli rast o 40%',
+                owned: false,
+                levelRequired: 7
+            },
+            {
+                id: 'greenhouse',
+                name: 'Skleník',
+                icon: '🏠',
+                cost: 2500,
+                speedBonus: 60,
+                description: 'Zrýchli rast o 60%',
+                owned: false,
+                levelRequired: 10
+            },
+            {
+                id: 'super_fertilizer',
+                name: 'Super hnojivo',
+                icon: '🍃',
+                cost: 5000,
+                speedBonus: 80,
+                description: 'Zrýchli rast o 80%',
+                owned: false,
+                levelRequired: 12
+            },
+            {
+                id: 'magic_water',
+                name: 'Čarovná voda',
+                icon: '✨',
+                cost: 10000,
+                speedBonus: 100,
+                description: 'Zrýchli rast o 100%',
+                owned: false,
+                levelRequired: 15
+            }
+        ];
+
+        const achievements = [
+            {
+                id: 'first_harvest',
+                name: 'Prvá úroda',
+                description: 'Zber svoju prvú úrodu',
+                icon: '⭐',
+                requirement: 1,
+                type: 'harvest',
+                unlocked: false,
+                reward: 50
+            },
+            {
+                id: 'novice_farmer',
+                name: 'Začínajúci farmár',
+                description: 'Zber 10 úrod',
+                icon: '🌾',
+                requirement: 10,
+                type: 'harvest',
+                unlocked: false,
+                reward: 100
+            },
+            {
+                id: 'harvest_master',
+                name: 'Majster úrody',
+                description: 'Zber 100 úrod',
+                icon: '🏆',
+                requirement: 100,
+                type: 'harvest',
+                unlocked: false,
+                reward: 500
+            },
+            {
+                id: 'coin_collector',
+                name: 'Zberateľ mincí',
+                description: 'Nazber 1000 mincí',
+                icon: '🪙',
+                requirement: 1000,
+                type: 'coins',
+                unlocked: false,
+                reward: 200
+            },
+            {
+                id: 'wealthy_farmer',
+                name: 'Bohatý farmár',
+                description: 'Nazber 10000 mincí',
+                icon: '💰',
+                requirement: 10000,
+                type: 'coins',
+                unlocked: false,
+                reward: 1000
+            },
+            {
+                id: 'experienced',
+                name: 'Skúsený',
+                description: 'Dosiahni level 5',
+                icon: '⭐',
+                requirement: 5,
+                type: 'level',
+                unlocked: false,
+                reward: 300
+            },
+            {
+                id: 'expert_farmer',
+                name: 'Expert farmár',
+                description: 'Dosiahni level 10',
+                icon: '🌟',
+                requirement: 10,
+                type: 'level',
+                unlocked: false,
+                reward: 800
+            },
+            {
+                id: 'legendary_farmer',
+                name: 'Legendárny farmár',
+                description: 'Dosiahni level 20',
+                icon: '👑',
+                requirement: 20,
+                type: 'level',
+                unlocked: false,
+                reward: 2000
+            },
+            {
+                id: 'crop_variety',
+                name: 'Pestovateľ rozmanitosti',
+                description: 'Vypestuj 50 plodín',
+                icon: '🌱',
+                requirement: 50,
+                type: 'crops',
+                unlocked: false,
+                reward: 400
+            },
+            {
+                id: 'mass_production',
+                name: 'Masová produkcia',
+                description: 'Vypestuj 200 plodín',
+                icon: '🌾',
+                requirement: 200,
+                type: 'crops',
+                unlocked: false,
+                reward: 1200
+            },
+            {
+                id: 'tool_collector',
+                name: 'Zberateľ nástrojov',
+                description: 'Kúp 3 nástroje',
+                icon: '🚜',
+                requirement: 3,
+                type: 'tools',
+                unlocked: false,
+                reward: 600
+            },
+            {
+                id: 'expansion_master',
+                name: 'Majster expanzie',
+                description: 'Odomkni 8 polí',
+                icon: '☀️',
+                requirement: 8,
+                type: 'fields',
+                unlocked: false,
+                reward: 800
+            }
+        ];
+
+        // Initialize game
+        function initGame() {
+            gameState.tools = tools.map(tool => ({ ...tool }));
+            gameState.achievements = achievements.map(achievement => ({ ...achievement }));
+
+            // Load saved game
+            const savedGame = localStorage.getItem('farmGame');
+            if (savedGame) {
+                try {
+                    const saved = JSON.parse(savedGame);
+                    gameState = { ...gameState, ...saved };
+                } catch (error) {
+                    console.error('Error loading saved game:', error);
+                }
+            }
+
+            updateUI();
+            updateLevel();
+            checkDailyReward();
+
+            // Start game loop
+            setInterval(updateGame, 1000);
+        }
+
+        // Update game state every second
+        function updateGame() {
+            updateUI();
+            checkAchievements();
+            saveGame();
+        }
+
+        // Update UI elements
+        function updateUI() {
+            document.getElementById('coins').textContent = gameState.coins.toLocaleString();
+            document.getElementById('xp').textContent = gameState.xp;
+            document.getElementById('level').textContent = gameState.level;
+            document.getElementById('unlocked-fields').textContent = gameState.unlockedFields;
+
+            // Update XP progress bar
+            const xpProgress = (gameState.xp % 100) / 100 * 100;
+            document.getElementById('xp-progress').style.width = xpProgress + '%';
+
+            // Update daily reward amount
+            document.getElementById('daily-reward-amount').textContent = (gameState.level * 50).toLocaleString();
+
+            updateFields();
+            updateCropsList();
+            updateToolsList();
+            updateAchievementsList();
+            updateUnlockButton();
+        }
+
+        // Update level based on XP
+        function updateLevel() {
+            const newLevel = Math.floor(gameState.xp / 100) + 1;
+            gameState.level = newLevel;
+        }
+
+        // Update fields display
+        function updateFields() {
+            const fieldsGrid = document.getElementById('fields-grid');
+            fieldsGrid.innerHTML = '';
+
+            for (let i = 0; i < gameState.unlockedFields; i++) {
+                const fieldDiv = document.createElement('div');
+                const plantedCrop = gameState.plantedCrops.find(pc => pc.field === i);
+
+                if (plantedCrop) {
+                    const crop = crops.find(c => c.id === plantedCrop.cropId);
+                    const { progress, isReady } = getCropProgress(i);
+
+                    fieldDiv.className = `field ${isReady ? 'ready' : ''}`;
+                    fieldDiv.innerHTML = `
+                        <div>Pole ${i + 1}</div>
+                        <div class="field-icon text-${crop.rarity}">${crop.icon}</div>
+                        <div class="text-${crop.rarity}">${crop.name}</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${progress}%"></div>
+                        </div>
+                        <div>${Math.round(progress)}%</div>
+                        ${isReady ? `<button class="button small" onclick="harvestCrop(${i})">Zober úrodu</button>` : ''}
+                    `;
+                } else {
+                    fieldDiv.className = 'field';
+                    const availableCrops = getAvailableCrops();
+                    const cropsHtml = availableCrops.slice(0, 4).map(crop =>
+                        `<button class="button small text-${crop.rarity}" 
+                                onclick="plantCrop('${crop.id}', ${i})" 
+                                ${gameState.coins < crop.seedCost ? 'disabled' : ''}>
+                            ${crop.icon} ${crop.seedCost}
+                        </button>`
+                    ).join('');
+
+                    fieldDiv.innerHTML = `
+                        <div>Pole ${i + 1}</div>
+                        <div class="field-icon">🌱</div>
+                        <div class="field-crops">
+                            ${cropsHtml}
+                        </div>
+                    `;
+                }
+
+                fieldsGrid.appendChild(fieldDiv);
+            }
+        }
+
+        // Update crops list in shop
+        function updateCropsList() {
+            const cropsList = document.getElementById('crops-list');
+            cropsList.innerHTML = '';
+
+            crops.forEach(crop => {
+                const canBuy = crop.levelRequired <= gameState.level;
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `item ${!canBuy ? 'opacity-50' : ''}`;
+                itemDiv.innerHTML = `
+                    <div class="item-info">
+                        <div class="text-${crop.rarity}">${crop.icon}</div>
+                        <div class="item-details">
+                            <div class="item-name text-${crop.rarity}">
+                                ${crop.name}
+                                ${!canBuy ? `<span style="color: #ef4444; font-size: 0.75rem;">(Level ${crop.levelRequired})</span>` : ''}
+                            </div>
+                            <div class="item-description">
+                                Čas: ${crop.growTime}s | Predaj: ${crop.sellPrice} | XP: ${crop.xpReward}
+                            </div>
+                            <div class="badge ${crop.rarity}">${crop.rarity}</div>
+                        </div>
+                    </div>
+                    <div class="badge" style="background: #f3f4f6;">${crop.seedCost} mincí</div>
+                `;
+                cropsList.appendChild(itemDiv);
+            });
+        }
+
+        // Update tools list
+        function updateToolsList() {
+            const toolsList = document.getElementById('tools-list');
+            toolsList.innerHTML = '';
+
+            gameState.tools.forEach(tool => {
+                const canBuy = tool.levelRequired <= gameState.level && gameState.coins >= tool.cost;
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `item ${tool.levelRequired > gameState.level ? 'opacity-50' : ''}`;
+                itemDiv.innerHTML = `
+                    <div class="item-info">
+                        <div>${tool.icon}</div>
+                        <div class="item-details">
+                            <div class="item-name">
+                                ${tool.name}
+                                ${tool.levelRequired > gameState.level ? `<span style="color: #ef4444; font-size: 0.75rem;">(Level ${tool.levelRequired})</span>` : ''}
+                            </div>
+                            <div class="item-description">${tool.description}</div>
+                        </div>
+                    </div>
+                    <div>
+                        ${tool.owned ?
+                        '<div class="badge" style="background: #dcfce7; color: #166534;">Vlastníš</div>' :
+                        `<button class="button" onclick="buyTool('${tool.id}')" ${!canBuy ? 'disabled' : ''}>
+                                Kúpiť za ${tool.cost.toLocaleString()}
+                            </button>`
+                    }
+                    </div>
+                `;
+                toolsList.appendChild(itemDiv);
+            });
+
+            // Update speed bonus display
+            const speedBonus = getSpeedBonus();
+            const ownedTools = gameState.tools.filter(t => t.owned).length;
+            document.getElementById('speed-bonus').textContent = speedBonus;
+            document.getElementById('owned-tools').textContent = ownedTools;
+            document.getElementById('total-tools').textContent = gameState.tools.length;
+        }
+
+        // Update achievements list
+        function updateAchievementsList() {
+            const achievementsList = document.getElementById('achievements-list');
+            achievementsList.innerHTML = '';
+
+            gameState.achievements.forEach(achievement => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `item achievement ${achievement.unlocked ? 'unlocked' : ''}`;
+                itemDiv.innerHTML = `
+                    <div class="item-info">
+                        <div>${achievement.icon}</div>
+                        <div class="item-details">
+                            <div class="item-name">${achievement.name}</div>
+                            <div class="item-description">${achievement.description}</div>
+                        </div>
+                    </div>
+                    <div>
+                        ${achievement.unlocked ?
+                        '<div class="badge" style="background: #dcfce7; color: #166534;">Splnené!</div>' :
+                        `<div class="badge" style="background: #f3f4f6;">+${achievement.reward} mincí</div>`
+                    }
+                    </div>
+                `;
+                achievementsList.appendChild(itemDiv);
+            });
+
+            // Update achievements counter
+            const unlockedCount = gameState.achievements.filter(a => a.unlocked).length;
+            document.getElementById('unlocked-achievements').textContent = unlockedCount;
+            document.getElementById('total-achievements').textContent = gameState.achievements.length;
+        }
+
+        // Update unlock field button
+        function updateUnlockButton() {
+            const button = document.getElementById('unlock-field-btn');
+            const cost = gameState.unlockedFields * 150;
+            button.textContent = `Odomknúť nové pole (${cost.toLocaleString()} mincí)`;
+            button.disabled = gameState.coins < cost || gameState.unlockedFields >= 20;
+            button.style.display = gameState.unlockedFields >= 20 ? 'none' : 'block';
+        }
+
+        // Get available crops for current level
+        function getAvailableCrops() {
+            return crops.filter(crop => crop.levelRequired <= gameState.level);
+        }
+
+        // Get speed bonus from owned tools
+        function getSpeedBonus() {
+            return gameState.tools.filter(tool => tool.owned).reduce((total, tool) => total + tool.speedBonus, 0);
+        }
+
+        // Get crop growth progress
+        function getCropProgress(fieldIndex) {
+            const plantedCrop = gameState.plantedCrops.find(pc => pc.field === fieldIndex);
+            if (!plantedCrop) return { progress: 0, isReady: false };
+
+            const crop = crops.find(c => c.id === plantedCrop.cropId);
+            if (!crop) return { progress: 0, isReady: false };
+
+            const speedBonus = getSpeedBonus();
+            const adjustedGrowTime = crop.growTime * (100 / (100 + speedBonus)) * 1000;
+            const timeSincePlanted = Date.now() - plantedCrop.plantedAt;
+            const progress = Math.min((timeSincePlanted / adjustedGrowTime) * 100, 100);
+            const isReady = progress >= 100;
+
+            return { progress, isReady };
+        }
+
+        // Plant a crop
+        function plantCrop(cropId, fieldIndex) {
+            const crop = crops.find(c => c.id === cropId);
+            if (!crop || gameState.coins < crop.seedCost || crop.levelRequired > gameState.level) return;
+
+            const isFieldOccupied = gameState.plantedCrops.some(pc => pc.field === fieldIndex);
+            if (isFieldOccupied) return;
+
+            gameState.coins -= crop.seedCost;
+            gameState.plantedCrops.push({
+                cropId,
+                plantedAt: Date.now(),
+                field: fieldIndex
+            });
+        }
+
+        // Harvest a crop
+        function harvestCrop(fieldIndex) {
+            const plantedCrop = gameState.plantedCrops.find(pc => pc.field === fieldIndex);
+            if (!plantedCrop) return;
+
+            const crop = crops.find(c => c.id === plantedCrop.cropId);
+            if (!crop) return;
+
+            const { isReady } = getCropProgress(fieldIndex);
+            if (!isReady) return;
+
+            gameState.coins += crop.sellPrice;
+            gameState.xp += crop.xpReward;
+            gameState.totalHarvests++;
+            gameState.totalCropsGrown++;
+
+            gameState.plantedCrops = gameState.plantedCrops.filter(pc => pc.field !== fieldIndex);
+            updateLevel();
+        }
+
+        // Buy a tool
+        function buyTool(toolId) {
+            const tool = gameState.tools.find(t => t.id === toolId);
+            if (!tool || tool.owned || gameState.coins < tool.cost || tool.levelRequired > gameState.level) return;
+
+            gameState.coins -= tool.cost;
+            tool.owned = true;
+        }
+
+        // Unlock new field
+        function unlockField() {
+            const cost = gameState.unlockedFields * 150;
+            if (gameState.coins < cost || gameState.unlockedFields >= 20) return;
+
+            gameState.coins -= cost;
+            gameState.unlockedFields++;
+        }
+
+        // Check and unlock achievements
+        function checkAchievements() {
+            gameState.achievements.forEach(achievement => {
+                if (achievement.unlocked) return;
+
+                let currentValue = 0;
+                switch (achievement.type) {
+                    case 'harvest':
+                        currentValue = gameState.totalHarvests;
+                        break;
+                    case 'coins':
+                        currentValue = gameState.coins;
+                        break;
+                    case 'level':
+                        currentValue = gameState.level;
+                        break;
+                    case 'crops':
+                        currentValue = gameState.totalCropsGrown;
+                        break;
+                    case 'tools':
+                        currentValue = gameState.tools.filter(t => t.owned).length;
+                        break;
+                    case 'fields':
+                        currentValue = gameState.unlockedFields;
+                        break;
+                }
+
+                if (currentValue >= achievement.requirement) {
+                    achievement.unlocked = true;
+                    gameState.coins += achievement.reward;
+                    alert(`🎉 Úspech odomknutý: ${achievement.name}! +${achievement.reward} mincí`);
+                }
+            });
+        }
+
+        // Check daily reward availability
+        function checkDailyReward() {
+            const now = Date.now();
+            const oneDayMs = 24 * 60 * 60 * 1000;
+            const dailyRewardAvailable = now - gameState.lastDailyReward > oneDayMs;
+
+            const button = document.getElementById('daily-reward-btn');
+            button.disabled = !dailyRewardAvailable;
+            button.textContent = dailyRewardAvailable ? 'Vyzdvihnúť dennú odmenu' : 'Už si vyzvidol dennú odmenu';
+        }
+
+        // Claim daily reward
+        function claimDailyReward() {
+            const now = Date.now();
+            const oneDayMs = 24 * 60 * 60 * 1000;
+            if (now - gameState.lastDailyReward <= oneDayMs) return;
+
+            const reward = gameState.level * 50;
+            gameState.coins += reward;
+            gameState.lastDailyReward = now;
+
+            alert(`🎁 Získal si dennú odmenu: ${reward} mincí!`);
+            checkDailyReward();
+        }
+
+        // Save game to localStorage
+        function saveGame() {
+            localStorage.setItem('farmGame', JSON.stringify(gameState));
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Save/Load functionality
+        function openSaveModal() {
+            document.getElementById('save-modal').classList.add('active');
+        }
+
+        function closeSaveModal() {
+            document.getElementById('save-modal').classList.remove('active');
+        }
+
+        // Helper function to convert string to UTF-8 bytes then to base64
+        function stringToBase64(str) {
+            const utf8Bytes = new TextEncoder().encode(str);
+            let binaryString = '';
+            utf8Bytes.forEach(byte => {
+                binaryString += String.fromCharCode(byte);
+            });
+            return btoa(binaryString);
+        }
+
+        // Helper function to convert base64 to UTF-8 string
+        function base64ToString(base64) {
+            const binaryString = atob(base64);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return new TextDecoder().decode(bytes);
+        }
+
+        function generateSaveCode() {
+            try {
+                const jsonString = JSON.stringify(gameState);
+                const compressed = stringToBase64(jsonString);
+                document.getElementById('save-code').value = compressed;
+            } catch (error) {
+                alert('Chyba pri generovaní kódu!');
+                console.error('Error generating save code:', error);
+            }
+        }
+
+        function copySaveCode() {
+            const saveCode = document.getElementById('save-code').value;
+            if (!saveCode) {
+                alert('Najprv vygeneruj kód na uloženie!');
+                return;
+            }
+
+            navigator.clipboard.writeText(saveCode).then(() => {
+                alert('Kód skopírovaný!');
+            }).catch(() => {
+                // Fallback for older browsers
+                document.getElementById('save-code').select();
+                document.execCommand('copy');
+                alert('Kód skopírovaný!');
+            });
+        }
+
+        function loadFromCode() {
+            const loadCode = document.getElementById('load-code').value;
+            if (!loadCode) {
+                alert('Vložte kód na načítanie!');
+                return;
+            }
+
+            try {
+                const jsonString = base64ToString(loadCode);
+                const loadedState = JSON.parse(jsonString);
+                gameState = { ...gameState, ...loadedState };
+                updateUI();
+                closeSaveModal();
+                alert('Hra úspešne načítaná!');
+            } catch (error) {
+                alert('Neplatný kód na načítanie!');
+                console.error('Error loading from code:', error);
+            }
+        }
+
+        // Initialize game when page loads
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+
+</html>
